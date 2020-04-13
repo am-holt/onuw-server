@@ -1,0 +1,88 @@
+{
+  "version" : 1,
+  "errors" : [ ],
+  "types" : [ {
+    "type" : "object",
+    "object" : {
+      "typeName" : {
+        "name" : "Game",
+        "package" : "com.aluminati.onuw"
+      },
+      "fields" : [ {
+        "fieldName" : "gameId",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      }, {
+        "fieldName" : "currentPlayer",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Player",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "otherPlayers",
+        "type" : {
+          "type" : "set",
+          "set" : {
+            "itemType" : {
+              "type" : "reference",
+              "reference" : {
+                "name" : "Player",
+                "package" : "com.aluminati.onuw"
+              }
+            }
+          }
+        }
+      } ]
+    }
+  }, {
+    "type" : "object",
+    "object" : {
+      "typeName" : {
+        "name" : "Player",
+        "package" : "com.aluminati.onuw"
+      },
+      "fields" : [ {
+        "fieldName" : "name",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      }, {
+        "fieldName" : "id",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      }, {
+        "fieldName" : "role",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Role",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      } ]
+    }
+  }, {
+    "type" : "enum",
+    "enum" : {
+      "typeName" : {
+        "name" : "Role",
+        "package" : "com.aluminati.onuw"
+      },
+      "values" : [ {
+        "value" : "WEREWOLF"
+      }, {
+        "value" : "VILLAGER"
+      } ]
+    }
+  } ],
+  "services" : [ ],
+  "extensions" : { }
+}

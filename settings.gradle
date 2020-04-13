@@ -16,3 +16,9 @@ include 'services:webservice'
 */
 
 rootProject.name = 'onuw-server'
+
+include 'onuw-server'
+include 'onuw-server-api'
+include 'onuw-server-api:onuw-server-api-objects'
+include 'onuw-server-api:onuw-server-api-jersey'
+include 'onuw-server-api:onuw-server-api-typescript'

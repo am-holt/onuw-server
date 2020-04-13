@@ -1,0 +1,21 @@
+types:
+  definitions:
+    default-package: com.aluminati.onuw
+    objects:
+
+      Player:
+        fields:
+          name: string
+          id: string
+          role: Role
+          
+      Role:
+        values:
+          - 'WEREWOLF'
+          - 'VILLAGER'
+
+      Game:
+        fields:
+          gameId: string
+          currentPlayer: Player
+          otherPlayers: set<Player>
