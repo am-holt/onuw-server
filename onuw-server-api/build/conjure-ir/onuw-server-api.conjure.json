@@ -139,6 +139,8 @@
         "value" : "WEREWOLF"
       }, {
         "value" : "VOTE"
+      }, {
+        "value" : "END"
       } ]
     }
   }, {

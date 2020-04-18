@@ -47,6 +47,7 @@ types:
           - DAY
           - WEREWOLF
           - VOTE
+          - END
 
       Void:
         values:

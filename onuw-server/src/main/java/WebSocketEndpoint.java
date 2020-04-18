@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.websocket.EncodeException;
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -21,6 +23,7 @@ import com.aluminati.onuw.Game;
 import com.aluminati.onuw.Phase;
 import com.aluminati.onuw.Role;
 import com.aluminati.onuw.ServerEvent;
+import com.aluminati.onuw.Phase.Visitor;
 import com.aluminati.onuw.Player;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -43,8 +46,10 @@ public class WebSocketEndpoint {
         if (!playersInGames.containsKey(gameId)) {
             gameStore.createNewGame(gameId);
             System.out.println("create");
-            GameTimer timer = new GameTimer(gameStore, gameId, Executors.newSingleThreadScheduledExecutor(), () -> broadcastFullGameSate(gameId)); 
+            GameTimer timer = new GameTimer(gameStore, gameId, Executors.newSingleThreadScheduledExecutor(),
+                    () -> broadcastFullGameSate(gameId), () -> maybeMoveToTheNextPhase(gameId));
             gameTimers.put(gameId, timer);
+            timer.start();
         }
         System.out.println("HERE");
         System.out.println(gameId);
@@ -62,6 +67,57 @@ public class WebSocketEndpoint {
         System.out.println(playersInGames.size());
         sendFullGameState(gameId, session);
         broadcastFullGameSate(gameId);
+    }
+
+    private void maybeMoveToTheNextPhase(String gameId) {
+        Phase currentPhase = gameStore.getGamePhase(gameId);
+        Visitor<Void> visitor = new Visitor<Void>() {
+            public Void visitLobby() { return null; };
+
+            public Void visitDay(){ 
+                gameStore.updateGamePhase(gameId, Phase.WEREWOLF);
+                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                return null;
+            };
+
+            public Void visitWerewolf(){ 
+                gameStore.updateGamePhase(gameId, Phase.VOTE);
+                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                return null;
+            };
+
+            public Void visitVote(){
+                gameStore.updateGamePhase(gameId, Phase.END);
+                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                return null;
+            };
+
+            public Void visitEnd(){ return null; };
+
+            public Void visitUnknown(String unknownValue){ return null;};
+        };
+        currentPhase.accept(visitor);
+        broadcastFullGameSate(gameId);
+    }
+
+    @OnError
+    public void handleError(Throwable e) {
+        e.printStackTrace();
+        shutdownGame(gameId);
+    }
+
+    @OnClose
+    public void handleClose() {
+        Set<Session> existingPlayers = playersInGames.get(gameId);
+        existingPlayers.remove(session);
+        if (existingPlayers.size() == 0 ) {
+            shutdownGame(gameId);
+        }
+    }
+
+    private void shutdownGame(String gameId) {
+        System.out.println("Shutdown");
+        gameTimers.get(gameId).shutdown();
     }
 
     @OnMessage

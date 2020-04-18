@@ -23,6 +23,8 @@ interface GameStore {
 
     Game getGameStateForPlayer(String gameId, String playerId);
 
+    Phase getGamePhase(String gameId);
+
     void updateGamePhase(String gameId, Phase phase);
 
     List<Role> getAvailableRoles(String gameId);

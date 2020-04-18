@@ -122,6 +122,11 @@ public class InMemGameStore implements GameStore{
         System.out.println("time " + timeLeft);
         gamePhaseTimers.put(gameId, timeLeft);
     }
+
+    @Override
+    public Phase getGamePhase(String gameId) {
+        return phaseForGames.get(gameId);
+    }
 }
 
 //         Game gameState = Game.builder()
