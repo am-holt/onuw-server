@@ -34,7 +34,7 @@ public class WebSocketEndpoint {
     private Session session;
     private String gameId;
     private static Map<String, Set<Session>> playersInGames = new ConcurrentHashMap<>();
-    private static Map<String, ScheduledExecutorService> scheduledExecutors = new ConcurrentHashMap();
+    private static Map<String, GameTimer> gameTimers = new ConcurrentHashMap();
 
     @OnOpen
     public void onOpen(final Session session, @PathParam("gameId") final String gameId) throws IOException {
@@ -43,20 +43,8 @@ public class WebSocketEndpoint {
         if (!playersInGames.containsKey(gameId)) {
             gameStore.createNewGame(gameId);
             System.out.println("create");
-            ScheduledExecutorService gameTimeExecutor = Executors.newSingleThreadScheduledExecutor();
-            scheduledExecutors.put(gameId, gameTimeExecutor);
-            gameTimeExecutor.scheduleAtFixedRate(
-                () -> {
-                    try {
-                        System.out.println("time");
-                        gameStore.setTimeLeftInCurrentRound(gameId, gameStore.getTimeLeftInCurrentRound(gameId) - 1);
-                        broadcastFullGameSate(gameId);}
-                    catch (Exception e) { 
-                        System.out.println(e);
-                    }},
-                0,
-                1,
-                TimeUnit.SECONDS);
+            GameTimer timer = new GameTimer(gameStore, gameId, Executors.newSingleThreadScheduledExecutor(), () -> broadcastFullGameSate(gameId)); 
+            gameTimers.put(gameId, timer);
         }
         System.out.println("HERE");
         System.out.println(gameId);
