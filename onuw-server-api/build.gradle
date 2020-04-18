@@ -9,7 +9,8 @@ dependencies {
 subprojects {
     pluginManager.withPlugin 'java', {
         dependencies {
-            compile 'com.palantir.conjure.java:conjure-lib:2.5.0'
+            compile 'com.palantir.conjure.java:conjure-lib:5.14.1'
+            compile 'javax.annotation:javax.annotation-api:1.3.1'
         }
     }
 }

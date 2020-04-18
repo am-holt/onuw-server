@@ -8,14 +8,46 @@ types:
           name: string
           id: string
           role: Role
-          
+
       Role:
         values:
-          - 'WEREWOLF'
-          - 'VILLAGER'
+          - WEREWOLF
+          - VILLAGER
+          - HIDDEN
 
       Game:
         fields:
           gameId: string
           currentPlayer: Player
           otherPlayers: set<Player>
+          neutralCards: set<Player>
+          availableRoles: list<Role>
+          currentPhase: Phase
+          timeLeft: integer
+          currentVote: string
+
+      ServerEvent:
+        union:
+          addPlayer: Player
+          updatePlayer: Player
+          changePhase: Phase
+          updateTime: integer
+          fullUpdate: Game
+
+      ClientEvent:
+        union:
+          updateName: string
+          clickPlayer: string
+          startGame: Void
+          changeVote: string
+
+      Phase:
+        values:
+          - LOBBY
+          - DAY
+          - WEREWOLF
+          - VOTE
+
+      Void:
+        values:
+          - VOID

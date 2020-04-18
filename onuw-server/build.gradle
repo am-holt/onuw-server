@@ -20,8 +20,10 @@ repositories {
 
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
-    compile 'com.google.guava:guava:23.0'
+    //compile 'com.google.guava:guava:23.0'
     compile 'javax.websocket:javax.websocket-api:1.1'
+    compile project(':onuw-server-api:onuw-server-api-objects')
+    compile 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:5.7.0'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'

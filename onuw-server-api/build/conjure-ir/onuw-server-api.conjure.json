@@ -2,6 +2,42 @@
   "version" : 1,
   "errors" : [ ],
   "types" : [ {
+    "type" : "union",
+    "union" : {
+      "typeName" : {
+        "name" : "ClientEvent",
+        "package" : "com.aluminati.onuw"
+      },
+      "union" : [ {
+        "fieldName" : "updateName",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      }, {
+        "fieldName" : "clickPlayer",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      }, {
+        "fieldName" : "startGame",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Void",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "changeVote",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      } ]
+    }
+  }, {
     "type" : "object",
     "object" : {
       "typeName" : {
@@ -37,6 +73,72 @@
             }
           }
         }
+      }, {
+        "fieldName" : "neutralCards",
+        "type" : {
+          "type" : "set",
+          "set" : {
+            "itemType" : {
+              "type" : "reference",
+              "reference" : {
+                "name" : "Player",
+                "package" : "com.aluminati.onuw"
+              }
+            }
+          }
+        }
+      }, {
+        "fieldName" : "availableRoles",
+        "type" : {
+          "type" : "list",
+          "list" : {
+            "itemType" : {
+              "type" : "reference",
+              "reference" : {
+                "name" : "Role",
+                "package" : "com.aluminati.onuw"
+              }
+            }
+          }
+        }
+      }, {
+        "fieldName" : "currentPhase",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Phase",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "timeLeft",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "INTEGER"
+        }
+      }, {
+        "fieldName" : "currentVote",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      } ]
+    }
+  }, {
+    "type" : "enum",
+    "enum" : {
+      "typeName" : {
+        "name" : "Phase",
+        "package" : "com.aluminati.onuw"
+      },
+      "values" : [ {
+        "value" : "LOBBY"
+      }, {
+        "value" : "DAY"
+      }, {
+        "value" : "WEREWOLF"
+      }, {
+        "value" : "VOTE"
       } ]
     }
   }, {
@@ -80,6 +182,70 @@
         "value" : "WEREWOLF"
       }, {
         "value" : "VILLAGER"
+      }, {
+        "value" : "HIDDEN"
+      } ]
+    }
+  }, {
+    "type" : "union",
+    "union" : {
+      "typeName" : {
+        "name" : "ServerEvent",
+        "package" : "com.aluminati.onuw"
+      },
+      "union" : [ {
+        "fieldName" : "addPlayer",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Player",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "updatePlayer",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Player",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "changePhase",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Phase",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "updateTime",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "INTEGER"
+        }
+      }, {
+        "fieldName" : "fullUpdate",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Game",
+            "package" : "com.aluminati.onuw"
+          }
+        }
+      } ]
+    }
+  }, {
+    "type" : "enum",
+    "enum" : {
+      "typeName" : {
+        "name" : "Void",
+        "package" : "com.aluminati.onuw"
+      },
+      "values" : [ {
+        "value" : "VOID"
       } ]
     }
   } ],
