@@ -36,7 +36,7 @@ public class WebSocketEndpoint {
     private static GameStore gameStore = new InMemGameStore();
     private Session session;
     private String gameId;
-    private static Map<String, Set<Session>> playersInGames = new ConcurrentHashMap<>();
+    private static Map<String, Map<String, Session>> playersInGames = new ConcurrentHashMap<>();
     private static Map<String, GameTimer> gameTimers = new ConcurrentHashMap();
 
     @OnOpen
@@ -54,10 +54,10 @@ public class WebSocketEndpoint {
         }
         System.out.println("HERE");
         System.out.println(gameId);
-        Set<Session> existingPlayers = playersInGames.getOrDefault(gameId, new HashSet());
+        Map<String, Session> existingPlayers = playersInGames.getOrDefault(gameId, new ConcurrentHashMap<>());
         System.out.println(existingPlayers.size());
         System.out.println(session.getId());
-        existingPlayers.add(session);
+        existingPlayers.put(session.getId(), session);
         System.out.println(existingPlayers.size());
         playersInGames.put(gameId, existingPlayers);
         gameStore.addPlayer(gameId, session.getId(),
@@ -78,18 +78,31 @@ public class WebSocketEndpoint {
             public Void visitDay(){ 
                 gameStore.updateGamePhase(gameId, Phase.WEREWOLF);
                 gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                broadcastFullGameSate(gameId);
+                Set<Player> werewolves = 
+                    gameStore.getGamePlayers(gameId).stream()
+                        .filter(x -> x.getRole().equals(Role.WEREWOLF))
+                        .collect(Collectors.toSet());
+                werewolves.stream()
+                    .map(player -> player.getId())
+                    .map(playerId -> playersInGames.get(gameId).get(playerId))
+                    .forEach(session -> 
+                        werewolves.stream().forEach(ww ->
+                            sendServerEvent(ServerEvent.updatePlayer(ww), session)));
                 return null;
             };
 
             public Void visitWerewolf(){ 
                 gameStore.updateGamePhase(gameId, Phase.VOTE);
                 gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                broadcastFullGameSate(gameId);
                 return null;
             };
 
             public Void visitVote(){
                 gameStore.updateGamePhase(gameId, Phase.END);
                 gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                broadcastFullGameSate(gameId);
                 return null;
             };
 
@@ -98,7 +111,6 @@ public class WebSocketEndpoint {
             public Void visitUnknown(String unknownValue){ return null;};
         };
         currentPhase.accept(visitor);
-        broadcastFullGameSate(gameId);
     }
 
     @OnError
@@ -109,9 +121,8 @@ public class WebSocketEndpoint {
 
     @OnClose
     public void handleClose() {
-        Set<Session> existingPlayers = playersInGames.get(gameId);
-        existingPlayers.remove(session);
-        if (existingPlayers.size() == 0 ) {
+        playersInGames.get(gameId).remove(session.getId());
+        if (playersInGames.get(gameId).size() == 0 ) {
             shutdownGame(gameId);
         }
     }
@@ -148,13 +159,13 @@ public class WebSocketEndpoint {
 
 
     private static void broadcastServerEvent(final String gameId, ServerEvent serverEvent) {
-        playersInGames.get(gameId).stream().forEach(session -> {
+        playersInGames.get(gameId).values().stream().forEach(session -> {
             sendServerEvent(serverEvent, session);
         });
     }
 
     private static void broadcastFullGameSate(final String gameId) {
-        playersInGames.get(gameId).stream().forEach(session -> {
+        playersInGames.get(gameId).values().stream().forEach(session -> {
             sendFullGameState(gameId, session);
         });
     }
