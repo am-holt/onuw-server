@@ -47,7 +47,8 @@ public class WebSocketEndpoint {
             gameStore.createNewGame(gameId);
             System.out.println("create");
             GameTimer timer = new GameTimer(gameStore, gameId, Executors.newSingleThreadScheduledExecutor(),
-                    () -> broadcastFullGameSate(gameId), () -> maybeMoveToTheNextPhase(gameId));
+                    (newTime) -> broadcastServerEvent(gameId, ServerEvent.updateTime(newTime)),
+                    () -> maybeMoveToTheNextPhase(gameId));
             gameTimers.put(gameId, timer);
             timer.start();
         }
@@ -128,17 +129,28 @@ public class WebSocketEndpoint {
         broadcastFullGameSate(gameId);
     }
 
-    private static void sendFullGameState(final String gameId, final Session session) {
+    private static void sendServerEvent(ServerEvent event, Session session) {
         try {
-            Game gameState = gameStore.getGameStateForPlayer(gameId, session.getId());
-            String msg = mapper.writeValueAsString(ServerEvent.fullUpdate(gameState));
             synchronized (session) {
+                String msg = mapper.writeValueAsString(event);
                 session.getBasicRemote().sendText(msg);
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    private static void sendFullGameState(final String gameId, final Session session) {
+        Game gameState = gameStore.getGameStateForPlayer(gameId, session.getId());
+        sendServerEvent(ServerEvent.fullUpdate(gameState), session);
+    }
+
+
+    private static void broadcastServerEvent(final String gameId, ServerEvent serverEvent) {
+        playersInGames.get(gameId).stream().forEach(session -> {
+            sendServerEvent(serverEvent, session);
+        });
     }
 
     private static void broadcastFullGameSate(final String gameId) {

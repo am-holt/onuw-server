@@ -1,19 +1,21 @@
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class GameTimer {
     private GameStore gameStore;
     private String gameId;
     private ScheduledExecutorService executor;
-    private Runnable onUpdate;
+    private Consumer<Integer> onUpdate;
     private Runnable onTimeReachesZero;
 
     public GameTimer(
             GameStore gameStore,
             String gameId,
             ScheduledExecutorService executor,
-            Runnable onUpdate,
+            Consumer<Integer> onUpdate,
             Runnable onTimeReachesZero) {
         this.executor = executor;
         this.gameId = gameId;
@@ -37,11 +39,12 @@ public class GameTimer {
     private void tick() {
         try {
             int currentTime = gameStore.getTimeLeftInCurrentRound(gameId);
-            gameStore.setTimeLeftInCurrentRound(gameId, Math.max(currentTime - 1, 0));
+            int newTime = Math.max(currentTime - 1, 0);
+            gameStore.setTimeLeftInCurrentRound(gameId, newTime);
             if (currentTime == 0) {
                 this.onTimeReachesZero.run();
             } else {
-                this.onUpdate.run();
+                this.onUpdate.accept(newTime);
             }
         } catch (Exception e) { 
             System.out.println(e);
