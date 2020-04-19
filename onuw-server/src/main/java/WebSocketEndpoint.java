@@ -132,7 +132,8 @@ public class WebSocketEndpoint {
             session.getId(),
             gameStore,
             () -> broadcastFullGameSate(gameId),
-            (peeker, player) -> {sendServerEvent(ServerEvent.updatePlayer(player), playerSessions.get(peeker)); return null;}));
+            (peekerId, player) -> {sendServerEvent(ServerEvent.updatePlayer(player), playerSessions.get(peekerId)); return null;},
+            voterId -> sendFullGameState(gameId, playerSessions.get(voterId))));
         System.out.println("GameStart");
     }
 

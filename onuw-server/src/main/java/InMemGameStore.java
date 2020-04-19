@@ -22,6 +22,7 @@ public class InMemGameStore implements GameStore{
     private Map<String, List<Role>> availableRoles = new ConcurrentHashMap<>();
     private Map<String, Map<String,Player>> neutralCards = new ConcurrentHashMap<>();
     private Map<String, Map<String, Boolean>> actionsUsed = new ConcurrentHashMap<>();
+    private Map<String, Map<String, String>> votes = new ConcurrentHashMap();
 
     @Override
     public List<Player> getGamePlayers(String gameId) {
@@ -41,6 +42,7 @@ public class InMemGameStore implements GameStore{
         gamePlayers.put(gameId.toString(), new ConcurrentHashMap());
         neutralCards.put(gameId.toString(), new ConcurrentHashMap());
         actionsUsed.put(gameId.toString(), new ConcurrentHashMap());
+        votes.put(gameId.toString(), new ConcurrentHashMap());
         availableRoles.put(gameId.toString(), defaultRoles());
         phaseForGames.put(gameId.toString(), Phase.LOBBY);
         gamePhaseTimers.put(gameId, 0);
@@ -52,6 +54,13 @@ public class InMemGameStore implements GameStore{
     public Game getGameStateForPlayer(String gameId, String playerId) {
         Map<String, Player> players = this.gamePlayers.get(gameId);
         List<Role> availableRolesForGame = availableRoles.get(gameId);
+        String voteId = votes.get(gameId).getOrDefault(playerId, "");
+        String voteName = "";
+        Player votedPlayer = getPlayer(gameId, voteId);
+        if (votedPlayer != null) {
+            voteName = votedPlayer.getName();
+        }
+
         return Game.builder()
             .currentPlayer(players.get(playerId))
             .otherPlayers(players.values().stream()
@@ -64,7 +73,7 @@ public class InMemGameStore implements GameStore{
                 .collect(Collectors.toList()))
             .availableRoles(availableRolesForGame)
             .timeLeft(getTimeLeftInCurrentRound(gameId))
-            .currentVote("")
+            .currentVote(voteName)
             .gameId(gameId)
             .build();
     }
@@ -156,6 +165,11 @@ public class InMemGameStore implements GameStore{
     @Override
     public boolean isRoleActionUsed(String gameId, String playerId) {
         return this.actionsUsed.get(gameId).getOrDefault(playerId, false);
+    }
+
+    @Override
+    public void setVote(String gameId, String voterId, String votedId) {
+        this.votes.get(gameId).put(voterId, votedId);
     }
 }
 

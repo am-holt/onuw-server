@@ -39,4 +39,6 @@ interface GameStore {
     void setRoleActionAsUsed(String gameId, String playerId);
     
     boolean isRoleActionUsed(String gameId, String playerId);
+
+    void setVote(String gameId, String voterId, String votedId);
 }

@@ -2,6 +2,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,13 +19,15 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
     private String playerId;
     private Runnable broadcastGameState;
     private BiFunction<String, Player, Void> peek;
+    private Consumer<String> vote;
 
-    public GameClientEventVisitor(String gameId, String playerId, GameStore gameStore, Runnable broadcastGameState, BiFunction<String, Player, Void> peek) {
+    public GameClientEventVisitor(String gameId, String playerId, GameStore gameStore, Runnable broadcastGameState, BiFunction<String, Player, Void> peek, Consumer<String> vote) {
         this.gameId = gameId;
         this.playerId = playerId;
         this.gameStore = gameStore;
         this.broadcastGameState = broadcastGameState;
         this.peek = peek;
+        this.vote = vote;
     }
 
     @Override
@@ -47,7 +50,11 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
             gameStore.getNeutralPlayer(gameId, selectedPlayerId)
                 .ifPresent(neutral -> peek.apply(playerId, neutral));
             gameStore.setRoleActionAsUsed(gameId, playerId);
-        } 
+        } else if (gameStore.getGamePhase(gameId).equals(Phase.VOTE)
+                && gameStore.getGamePlayers(gameId).stream().anyMatch(p -> p.getId().equals(selectedPlayerId))) {
+            gameStore.setVote(gameId, playerId, selectedPlayerId);
+            vote.accept(playerId);
+        }
         return null;
     }
 
