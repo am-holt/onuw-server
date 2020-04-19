@@ -1,6 +1,8 @@
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,22 +16,36 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
     private GameStore gameStore;
     private String gameId;
     private String playerId;
+    private Runnable broadcastGameState;
+    private BiFunction<String, Player, Void> peek;
 
-    public GameClientEventVisitor(String gameId, String playerId, GameStore gameStore) {
+    public GameClientEventVisitor(String gameId, String playerId, GameStore gameStore, Runnable broadcastGameState, BiFunction<String, Player, Void> peek) {
         this.gameId = gameId;
         this.playerId = playerId;
         this.gameStore = gameStore;
+        this.broadcastGameState = broadcastGameState;
+        this.peek = peek;
     }
 
     @Override
     public Void visitUpdateName(String value) {
         gameStore.updatePlayerName(gameId, playerId, value);
+        broadcastGameState.run();
         return null;
     }
 
     @Override
-    public Void visitClickPlayer(String value) {
-        // TODO Auto-generated method stub
+    public Void visitClickPlayer(String selectedPlayerId) {
+        if (gameStore.getGamePhase(gameId).equals(Phase.WEREWOLF)
+                && gameStore.getPlayer(gameId, playerId).getRole().equals(Role.WEREWOLF)
+                && gameStore.getGamePlayers(gameId)
+                    .stream()
+                    .filter(x -> !x.getId().equals(playerId))
+                    .noneMatch(player -> player.getRole().equals(Role.WEREWOLF))) {
+
+            gameStore.getNeutralPlayer(gameId, selectedPlayerId)
+                .ifPresent(neutral -> peek.apply(playerId, neutral));
+        }
         return null;
     }
 
@@ -45,6 +61,7 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
             .forEach(index -> gameStore.addNeutralPlayer(gameId, roles.get(index)));
         gameStore.updateGamePhase(gameId, Phase.DAY);
         gameStore.setTimeLeftInCurrentRound(gameId, 10);
+        broadcastGameState.run();
         return null;
     }
 

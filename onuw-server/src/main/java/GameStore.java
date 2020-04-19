@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.aluminati.onuw.Game;
 import com.aluminati.onuw.Phase;
@@ -32,4 +33,6 @@ interface GameStore {
     void updatePlayerRoles(String gameId, Map<String, Role> roles);
 
     String addNeutralPlayer(String gameId, Role role);
+    
+    Optional<Player> getNeutralPlayer(String gameId, String playerId);
 }

@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -138,6 +139,11 @@ public class InMemGameStore implements GameStore{
         System.out.println(neutrals);
         System.out.println(neutralCards.get(gameId));
         return newId;
+    }
+
+    @Override
+    public Optional<Player> getNeutralPlayer(String gameId, String playerId) {
+        return Optional.ofNullable(neutralCards.get(gameId).get(playerId));
     }
 }
 
