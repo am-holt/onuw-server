@@ -45,27 +45,18 @@ public class WebSocketEndpoint {
         this.gameId = gameId;
         if (!playersInGames.containsKey(gameId)) {
             gameStore.createNewGame(gameId);
-            System.out.println("create");
             GameTimer timer = new GameTimer(gameStore, gameId, Executors.newSingleThreadScheduledExecutor(),
                     (newTime) -> broadcastServerEvent(gameId, ServerEvent.updateTime(newTime)),
                     () -> maybeMoveToTheNextPhase(gameId));
             gameTimers.put(gameId, timer);
             timer.start();
         }
-        System.out.println("HERE");
         System.out.println(gameId);
         Map<String, Session> existingPlayers = playersInGames.getOrDefault(gameId, new ConcurrentHashMap<>());
-        System.out.println(existingPlayers.size());
-        System.out.println(session.getId());
         existingPlayers.put(session.getId(), session);
-        System.out.println(existingPlayers.size());
         playersInGames.put(gameId, existingPlayers);
         gameStore.addPlayer(gameId, session.getId(),
                 Player.builder().id(session.getId()).name("Player " + session.getId()).role(Role.HIDDEN).build());
-        System.out.println("Size");
-        System.out.println(playersInGames.get(gameId).size());
-        System.out.println("New player joined");
-        System.out.println(playersInGames.size());
         sendFullGameState(gameId, session);
         broadcastFullGameSate(gameId);
     }

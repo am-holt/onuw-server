@@ -35,13 +35,14 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
 
     @Override
     public Void visitStartGame(com.aluminati.onuw.Void value) {
-        // TODO Auto-generated method stub
         List<Role> roles = gameStore.getAvailableRoles(gameId);
         Collections.shuffle(roles);
         List<Player> players = gameStore.getGamePlayers(gameId);
         Map<String, Role> playerRoles = IntStream.range(0, players.size()).boxed()
                 .collect(Collectors.toMap(index -> players.get(index).getId(), roles::get));
         gameStore.updatePlayerRoles(gameId, playerRoles);
+        IntStream.range(players.size(), roles.size()).boxed()
+            .forEach(index -> gameStore.addNeutralPlayer(gameId, roles.get(index)));
         gameStore.updateGamePhase(gameId, Phase.DAY);
         gameStore.setTimeLeftInCurrentRound(gameId, 10);
         return null;

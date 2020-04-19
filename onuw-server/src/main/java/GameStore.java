@@ -30,4 +30,6 @@ interface GameStore {
     List<Role> getAvailableRoles(String gameId);
 
     void updatePlayerRoles(String gameId, Map<String, Role> roles);
+
+    String addNeutralPlayer(String gameId, Role role);
 }

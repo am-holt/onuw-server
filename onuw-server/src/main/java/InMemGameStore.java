@@ -1,10 +1,8 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.aluminati.onuw.Game;
@@ -21,6 +19,7 @@ public class InMemGameStore implements GameStore{
     private Map<String, Phase> phaseForGames = new ConcurrentHashMap<>();
     private Map<String, Integer> gamePhaseTimers = new ConcurrentHashMap<>();
     private Map<String, List<Role>> availableRoles = new ConcurrentHashMap<>();
+    private Map<String, Map<String,Player>> neutralCards = new ConcurrentHashMap<>();
 
     @Override
     public List<Player> getGamePlayers(String gameId) {
@@ -38,6 +37,7 @@ public class InMemGameStore implements GameStore{
     public String createNewGame(String gameId) {
         //UUID gameId = UUID.randomUUID();
         gamePlayers.put(gameId.toString(), new ConcurrentHashMap());
+        neutralCards.put(gameId.toString(), new ConcurrentHashMap());
         availableRoles.put(gameId.toString(), defaultRoles());
         phaseForGames.put(gameId.toString(), Phase.LOBBY);
         gamePhaseTimers.put(gameId, 0);
@@ -56,7 +56,9 @@ public class InMemGameStore implements GameStore{
                 .map(player -> Player.builder().from(player).role(Role.HIDDEN).build())
                 .collect(Collectors.toList()))
             .currentPhase(phaseForGames.get(gameId))
-            .neutralCards(ImmutableList.of())
+            .neutralCards(neutralCards.get(gameId).values().stream()
+                .map(player -> Player.builder().from(player).role(Role.HIDDEN).build())
+                .collect(Collectors.toList()))
             .availableRoles(availableRolesForGame)
             .timeLeft(getTimeLeftInCurrentRound(gameId))
             .currentVote("")
@@ -126,6 +128,16 @@ public class InMemGameStore implements GameStore{
     @Override
     public Phase getGamePhase(String gameId) {
         return phaseForGames.get(gameId);
+    }
+
+    @Override
+    public String addNeutralPlayer(String gameId, Role role){
+        Map<String, Player> neutrals = neutralCards.get(gameId);
+        String newId = "n" + neutrals.size();
+        neutrals.put(newId, Player.of("neutral", newId, role));
+        System.out.println(neutrals);
+        System.out.println(neutralCards.get(gameId));
+        return newId;
     }
 }
 
