@@ -41,11 +41,13 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
                 && gameStore.getGamePlayers(gameId)
                     .stream()
                     .filter(x -> !x.getId().equals(playerId))
-                    .noneMatch(player -> player.getRole().equals(Role.WEREWOLF))) {
+                    .noneMatch(player -> player.getRole().equals(Role.WEREWOLF))
+                && !gameStore.isRoleActionUsed(gameId, playerId)) {
 
             gameStore.getNeutralPlayer(gameId, selectedPlayerId)
                 .ifPresent(neutral -> peek.apply(playerId, neutral));
-        }
+            gameStore.setRoleActionAsUsed(gameId, playerId);
+        } 
         return null;
     }
 

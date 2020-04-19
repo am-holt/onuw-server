@@ -35,4 +35,8 @@ interface GameStore {
     String addNeutralPlayer(String gameId, Role role);
     
     Optional<Player> getNeutralPlayer(String gameId, String playerId);
+
+    void setRoleActionAsUsed(String gameId, String playerId);
+    
+    boolean isRoleActionUsed(String gameId, String playerId);
 }

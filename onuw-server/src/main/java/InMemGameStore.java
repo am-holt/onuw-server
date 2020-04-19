@@ -21,6 +21,7 @@ public class InMemGameStore implements GameStore{
     private Map<String, Integer> gamePhaseTimers = new ConcurrentHashMap<>();
     private Map<String, List<Role>> availableRoles = new ConcurrentHashMap<>();
     private Map<String, Map<String,Player>> neutralCards = new ConcurrentHashMap<>();
+    private Map<String, Map<String, Boolean>> actionsUsed = new ConcurrentHashMap<>();
 
     @Override
     public List<Player> getGamePlayers(String gameId) {
@@ -39,6 +40,7 @@ public class InMemGameStore implements GameStore{
         //UUID gameId = UUID.randomUUID();
         gamePlayers.put(gameId.toString(), new ConcurrentHashMap());
         neutralCards.put(gameId.toString(), new ConcurrentHashMap());
+        actionsUsed.put(gameId.toString(), new ConcurrentHashMap());
         availableRoles.put(gameId.toString(), defaultRoles());
         phaseForGames.put(gameId.toString(), Phase.LOBBY);
         gamePhaseTimers.put(gameId, 0);
@@ -144,6 +146,16 @@ public class InMemGameStore implements GameStore{
     @Override
     public Optional<Player> getNeutralPlayer(String gameId, String playerId) {
         return Optional.ofNullable(neutralCards.get(gameId).get(playerId));
+    }
+
+    @Override
+    public void setRoleActionAsUsed(String gameId, String playerId) {
+        this.actionsUsed.get(gameId).put(playerId, true);
+    }
+
+    @Override
+    public boolean isRoleActionUsed(String gameId, String playerId) {
+        return this.actionsUsed.get(gameId).getOrDefault(playerId, false);
     }
 }
 
