@@ -84,6 +84,13 @@ public class WebSocketEndpoint {
             };
 
             public Void visitWerewolf(){ 
+                gameStore.updateGamePhase(gameId, Phase.SEER);
+                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                broadcastFullGameSate(gameId);
+                return null;
+            };
+
+            public Void visitSeer(){ 
                 gameStore.updateGamePhase(gameId, Phase.VOTE);
                 gameStore.setTimeLeftInCurrentRound(gameId, 10);
                 broadcastFullGameSate(gameId);

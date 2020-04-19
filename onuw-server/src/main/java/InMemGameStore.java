@@ -125,7 +125,7 @@ public class InMemGameStore implements GameStore{
         List<Role> def = new ArrayList();
         def.add(Role.VILLAGER);
         def.add(Role.VILLAGER);
-        def.add(Role.VILLAGER);
+        def.add(Role.SEER);
         def.add(Role.WEREWOLF);
         def.add(Role.WEREWOLF);
         return def;

@@ -138,6 +138,8 @@
       }, {
         "value" : "WEREWOLF"
       }, {
+        "value" : "SEER"
+      }, {
         "value" : "VOTE"
       }, {
         "value" : "END"
@@ -182,6 +184,8 @@
       },
       "values" : [ {
         "value" : "WEREWOLF"
+      }, {
+        "value" : "SEER"
       }, {
         "value" : "VILLAGER"
       }, {
