@@ -48,17 +48,18 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
                 && !gameStore.isRoleActionUsed(gameId, playerId)) {
 
             gameStore.getNeutralPlayer(gameId, selectedPlayerId)
-                .ifPresent(neutral -> peek.apply(playerId, neutral));
-            gameStore.setRoleActionAsUsed(gameId, playerId);
+                .ifPresent(neutral -> {
+                    gameStore.setRoleActionAsUsed(gameId, playerId);
+                    peek.apply(playerId, neutral);});    
         } else if (gameStore.getGamePhase(gameId).equals(Phase.SEER)
                 && gameStore.getPlayer(gameId, playerId).getRole().equals(Role.SEER)
                 && !gameStore.isRoleActionUsed(gameId, playerId)) {
 
             Player peekee = gameStore.getPlayer(gameId, selectedPlayerId);
             if (peekee != null ) {
+                gameStore.setRoleActionAsUsed(gameId, playerId);
                 peek.apply(playerId, peekee);
             }
-            gameStore.setRoleActionAsUsed(gameId, playerId);
         } else if (gameStore.getGamePhase(gameId).equals(Phase.VOTE)
                 && gameStore.getGamePlayers(gameId).stream().anyMatch(p -> p.getId().equals(selectedPlayerId))) {
             gameStore.setVote(gameId, playerId, selectedPlayerId);

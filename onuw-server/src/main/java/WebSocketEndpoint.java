@@ -29,10 +29,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.palantir.conjure.java.serialization.ObjectMappers;
 
 @ServerEndpoint("/onuw/{gameId}")
 public class WebSocketEndpoint {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = ObjectMappers.newServerObjectMapper();
     private static GameStore gameStore = new InMemGameStore();
     private Session session;
     private String gameId;

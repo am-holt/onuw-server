@@ -54,26 +54,21 @@ public class InMemGameStore implements GameStore{
     public Game getGameStateForPlayer(String gameId, String playerId) {
         Map<String, Player> players = this.gamePlayers.get(gameId);
         List<Role> availableRolesForGame = availableRoles.get(gameId);
-        String voteId = votes.get(gameId).getOrDefault(playerId, "");
-        String voteName = "";
-        Player votedPlayer = getPlayer(gameId, voteId);
-        if (votedPlayer != null) {
-            voteName = votedPlayer.getName();
-        }
-
+        Phase currentPhase = phaseForGames.get(gameId);
         return Game.builder()
             .currentPlayer(players.get(playerId))
             .otherPlayers(players.values().stream()
                 .filter(player -> !player.getId().equals(playerId))
-                .map(player -> Player.builder().from(player).role(Role.HIDDEN).build())
+                .map(player -> 
+                    currentPhase.equals(Phase.END) ? player 
+                        : Player.builder().from(player).role(Role.HIDDEN).votingFor(Optional.empty()).build())
                 .collect(Collectors.toList()))
-            .currentPhase(phaseForGames.get(gameId))
+            .currentPhase(currentPhase)
             .neutralCards(neutralCards.get(gameId).values().stream()
                 .map(player -> Player.builder().from(player).role(Role.HIDDEN).build())
                 .collect(Collectors.toList()))
             .availableRoles(availableRolesForGame)
             .timeLeft(getTimeLeftInCurrentRound(gameId))
-            .currentVote(voteName)
             .gameId(gameId)
             .build();
     }
@@ -146,7 +141,7 @@ public class InMemGameStore implements GameStore{
     public String addNeutralPlayer(String gameId, Role role){
         Map<String, Player> neutrals = neutralCards.get(gameId);
         String newId = "n" + neutrals.size();
-        neutrals.put(newId, Player.of("neutral", newId, role));
+        neutrals.put(newId, Player.builder().name("neutral").id(newId).role(role).build());
         System.out.println(neutrals);
         System.out.println(neutralCards.get(gameId));
         return newId;
@@ -169,7 +164,9 @@ public class InMemGameStore implements GameStore{
 
     @Override
     public void setVote(String gameId, String voterId, String votedId) {
-        this.votes.get(gameId).put(voterId, votedId);
+        Map<String, Player> playersInGame = this.gamePlayers.get(gameId);
+        Player voter = playersInGame.get(voterId);
+        playersInGame.put(voterId, Player.builder().from(voter).votingFor(votedId).build());
     }
 }
 

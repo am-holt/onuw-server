@@ -116,12 +116,6 @@
           "type" : "primitive",
           "primitive" : "INTEGER"
         }
-      }, {
-        "fieldName" : "currentVote",
-        "type" : {
-          "type" : "primitive",
-          "primitive" : "STRING"
-        }
       } ]
     }
   }, {
@@ -171,6 +165,17 @@
           "reference" : {
             "name" : "Role",
             "package" : "com.aluminati.onuw"
+          }
+        }
+      }, {
+        "fieldName" : "votingFor",
+        "type" : {
+          "type" : "optional",
+          "optional" : {
+            "itemType" : {
+              "type" : "primitive",
+              "primitive" : "STRING"
+            }
           }
         }
       } ]

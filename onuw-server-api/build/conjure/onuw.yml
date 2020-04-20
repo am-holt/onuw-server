@@ -8,6 +8,7 @@ types:
           name: string
           id: string
           role: Role
+          votingFor: optional<string>
 
       Role:
         values:
@@ -25,7 +26,6 @@ types:
           availableRoles: list<Role>
           currentPhase: Phase
           timeLeft: integer
-          currentVote: string
 
       ServerEvent:
         union:
