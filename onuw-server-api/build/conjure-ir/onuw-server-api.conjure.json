@@ -95,7 +95,7 @@
             "itemType" : {
               "type" : "reference",
               "reference" : {
-                "name" : "Role",
+                "name" : "RoleType",
                 "package" : "com.aluminati.onuw"
               }
             }
@@ -115,6 +115,20 @@
         "type" : {
           "type" : "primitive",
           "primitive" : "INTEGER"
+        }
+      }, {
+        "fieldName" : "winningTeam",
+        "type" : {
+          "type" : "optional",
+          "optional" : {
+            "itemType" : {
+              "type" : "reference",
+              "reference" : {
+                "name" : "Team",
+                "package" : "com.aluminati.onuw"
+              }
+            }
+          }
         }
       } ]
     }
@@ -163,7 +177,7 @@
         "type" : {
           "type" : "reference",
           "reference" : {
-            "name" : "Role",
+            "name" : "RoleType",
             "package" : "com.aluminati.onuw"
           }
         }
@@ -178,13 +192,22 @@
             }
           }
         }
+      }, {
+        "fieldName" : "team",
+        "type" : {
+          "type" : "reference",
+          "reference" : {
+            "name" : "Team",
+            "package" : "com.aluminati.onuw"
+          }
+        }
       } ]
     }
   }, {
     "type" : "enum",
     "enum" : {
       "typeName" : {
-        "name" : "Role",
+        "name" : "RoleType",
         "package" : "com.aluminati.onuw"
       },
       "values" : [ {
@@ -246,6 +269,19 @@
             "package" : "com.aluminati.onuw"
           }
         }
+      } ]
+    }
+  }, {
+    "type" : "enum",
+    "enum" : {
+      "typeName" : {
+        "name" : "Team",
+        "package" : "com.aluminati.onuw"
+      },
+      "values" : [ {
+        "value" : "WEREWOLF"
+      }, {
+        "value" : "VILLAGER"
       } ]
     }
   }, {

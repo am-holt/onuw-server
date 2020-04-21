@@ -7,15 +7,21 @@ types:
         fields:
           name: string
           id: string
-          role: Role
+          role: RoleType
           votingFor: optional<string>
+          team: Team
 
-      Role:
+      RoleType:
         values:
           - WEREWOLF
           - SEER
           - VILLAGER
           - HIDDEN
+
+      Team:
+        values:
+          - WEREWOLF
+          - VILLAGER
 
       Game:
         fields:
@@ -23,9 +29,10 @@ types:
           currentPlayer: Player
           otherPlayers: set<Player>
           neutralCards: set<Player>
-          availableRoles: list<Role>
+          availableRoles: list<RoleType>
           currentPhase: Phase
           timeLeft: integer
+          winningTeam: optional<Team>
 
       ServerEvent:
         union:

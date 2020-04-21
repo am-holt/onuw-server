@@ -102,9 +102,9 @@ public class InMemGameStore implements GameStore{
             gameId,
             entry.getKey(),
             Player.builder()
-            .from(this.getPlayer(gameId, entry.getKey()))
-            .role(entry.getValue())
-            .build()));
+                .from(this.getPlayer(gameId, entry.getKey()))
+                .role(entry.getValue())
+                .build()));
         }
 
     @Override
