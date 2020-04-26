@@ -41,6 +41,21 @@
     "type" : "object",
     "object" : {
       "typeName" : {
+        "name" : "CreateNewGameResponse",
+        "package" : "com.aluminati.onuw"
+      },
+      "fields" : [ {
+        "fieldName" : "gameId",
+        "type" : {
+          "type" : "primitive",
+          "primitive" : "STRING"
+        }
+      } ]
+    }
+  }, {
+    "type" : "object",
+    "object" : {
+      "typeName" : {
         "name" : "Game",
         "package" : "com.aluminati.onuw"
       },
@@ -282,6 +297,8 @@
         "value" : "WEREWOLF"
       }, {
         "value" : "VILLAGER"
+      }, {
+        "value" : "HIDDEN"
       } ]
     }
   }, {
@@ -296,6 +313,24 @@
       } ]
     }
   } ],
-  "services" : [ ],
+  "services" : [ {
+    "serviceName" : {
+      "name" : "OnuwService",
+      "package" : "com.aluminati.onuw"
+    },
+    "endpoints" : [ {
+      "endpointName" : "createNewGame",
+      "httpMethod" : "POST",
+      "httpPath" : "/owl/new",
+      "args" : [ ],
+      "markers" : [ ]
+    }, {
+      "endpointName" : "createGame",
+      "httpMethod" : "GET",
+      "httpPath" : "/owl/n",
+      "args" : [ ],
+      "markers" : [ ]
+    } ]
+  } ],
   "extensions" : { }
 }

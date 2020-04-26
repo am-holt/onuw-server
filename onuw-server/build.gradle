@@ -10,6 +10,7 @@ plugins {
   id 'java'
   id 'application'
   id "org.gretty" version "2.2.0"
+  id 'war'
 }
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -22,8 +23,13 @@ dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     //compile 'com.google.guava:guava:23.0'
     compile 'javax.websocket:javax.websocket-api:1.1'
-    compile project(':onuw-server-api:onuw-server-api-objects')
+    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'
     compile 'com.palantir.conjure.java.runtime:conjure-java-jackson-serialization:5.7.0'
+    compile 'com.palantir.conjure.java.runtime:conjure-java-jersey-server:latest.release'
+    compile "org.glassfish.jersey.containers:jersey-container-servlet:2.26"
+    compile "org.glassfish.jersey.media:jersey-media-json-jackson:2.26"
+
+    compile project(':onuw-server-api:onuw-server-api-objects')
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
@@ -39,7 +45,6 @@ gretty {
     servletContainer = 'tomcat8'
     contextPath = '/'
 }
- 
 
 // Define the main class for the application
 mainClassName = 'OnuwServer'
