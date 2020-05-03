@@ -80,7 +80,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "SHA256:hkuJKFIgygmcIERdItQL90/H2Bc2rmGe1PeaUpH7cvU"
-      - run: scp -r ./onuw-server/build/libs/onuw-server.war amholt05@104.197.233.50:/opt/tomcat/webapps/
+      - run: scp -r ./onuw-server/build/libs/onuw-server.war amholt05@104.197.233.50:/opt/tomcat/webapps
 workflows:
     version: 2
     build-and-deploy:
