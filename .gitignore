@@ -1,2 +1,5 @@
 **/build
-.gradle
+.gradle.vscode
+.settings
+.idea
+.classpath

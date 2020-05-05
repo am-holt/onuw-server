@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Sls-Recommended-Product-Dependencies: {"recommended-product-dependenci
- es":[]}
-
