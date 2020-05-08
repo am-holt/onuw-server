@@ -1,12 +1,10 @@
 package com.aluminati.onuw;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.aluminati.onuw.roles.Role;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -21,7 +19,6 @@ public class InMemGameStore implements GameStore{
     private Map<String, List<RoleType>> availableRoles = new ConcurrentHashMap<>();
     private Map<String, Map<String,Player>> neutralCards = new ConcurrentHashMap<>();
     private Map<String, Map<String, Boolean>> actionsUsed = new ConcurrentHashMap<>();
-    private Map<String, Map<String, String>> votes = new ConcurrentHashMap();
 
     @Override
     public List<Player> getGamePlayers(String gameId) {
@@ -41,7 +38,6 @@ public class InMemGameStore implements GameStore{
         gamePlayers.put(gameId.toString(), new ConcurrentHashMap());
         neutralCards.put(gameId.toString(), new ConcurrentHashMap());
         actionsUsed.put(gameId.toString(), new ConcurrentHashMap());
-        votes.put(gameId.toString(), new ConcurrentHashMap());
         availableRoles.put(gameId.toString(), defaultRoles());
         phaseForGames.put(gameId.toString(), Phase.LOBBY);
         gamePhaseTimers.put(gameId, 0);
@@ -70,12 +66,48 @@ public class InMemGameStore implements GameStore{
             .availableRoles(availableRolesForGame)
             .timeLeft(getTimeLeftInCurrentRound(gameId))
             .gameId(gameId)
+            .winningTeam(winningTeam)
             .build();
     }
 
     private Optional<Team> getWinningTeam(String gameId) {
         if (getGamePhase(gameId).equals(Phase.END)) {
-            return Optional.empty();
+            Map<String, Player> players = gamePlayers.get(gameId);
+            Map<String, Integer> timesVotedFor = new HashMap();
+            for (Player player : players.values()) {
+                player.getVotingFor()
+                        .ifPresent(voted -> timesVotedFor.put(voted, timesVotedFor.getOrDefault(voted,0) + 1));
+            }
+            List<String> mostVoted = new LinkedList<>();
+
+            int mostVotes = 0;
+            for (String player : timesVotedFor.keySet()) {
+                Integer voteCount = timesVotedFor.get(player);
+                if (voteCount == mostVotes) {
+                    mostVoted.add(player);
+                } else if (voteCount > mostVotes) {
+                    mostVoted.clear();
+                    mostVoted.add(player);
+                    mostVotes = voteCount;
+                }
+            }
+
+            // If any of the voted players was a werewolf then the villagers win
+            for (String player: mostVoted) {
+                if (Role.from(players.get(player).getRole()).getTeam().equals(Team.WEREWOLF)) {
+                    return Optional.of(Team.VILLAGER);
+                }
+            }
+            // If no votes then the villagers win iff no werewolves are playing
+            if (mostVoted.isEmpty()) {
+                for( Player player : players.values()) {
+                    if (Role.from(player.getRole()).getTeam().equals(Team.WEREWOLF)) {
+                        return Optional.of(Team.WEREWOLF);
+                    }
+                }
+                return Optional.of(Team.VILLAGER);
+            }
+            return Optional.of(Team.WEREWOLF);
         } else {
             return Optional.empty();
         }
