@@ -12,6 +12,8 @@ import com.aluminati.onuw.RoleType;
 interface GameStore {
     int getTimeLeftInCurrentRound(String gameId);
 
+    Optional<String> getVote(String gameId, String voterId);
+
     void setTimeLeftInCurrentRound(String gameId, int timeLeft);
 
     List<Player> getGamePlayers(String gameId);
@@ -42,5 +44,5 @@ interface GameStore {
     
     boolean isRoleActionUsed(String gameId, String playerId);
 
-    void setVote(String gameId, String voterId, String votedId);
+    void setVote(String gameId, String voterId, Optional<String> votedId);
 }

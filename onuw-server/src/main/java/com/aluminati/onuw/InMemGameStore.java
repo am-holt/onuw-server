@@ -151,20 +151,11 @@ public class InMemGameStore implements GameStore{
     public int getTimeLeftInCurrentRound(String gameId) {
         return gamePhaseTimers.get(gameId);
     }
-        
-    private void updatePlayer(String gameId, String playerId, Player player) {
-        this.gamePlayers.get(gameId).put(playerId, player);
-    }
 
-    private List<RoleType> defaultRoles() {
-        List<RoleType> def = new ArrayList();
-        def.add(RoleType.VILLAGER);
-        def.add(RoleType.VILLAGER);
-        def.add(RoleType.VILLAGER);
-        def.add(RoleType.SEER);
-        def.add(RoleType.WEREWOLF);
-        def.add(RoleType.WEREWOLF);
-        return def;
+    @Override
+    public Optional<String> getVote(String gameId, String voterId) {
+        Map<String, Player> playersInGame = this.gamePlayers.get(gameId);
+        return playersInGame.get(voterId).getVotingFor();
     }
 
     @Override
@@ -204,10 +195,25 @@ public class InMemGameStore implements GameStore{
     }
 
     @Override
-    public void setVote(String gameId, String voterId, String votedId) {
+    public void setVote(String gameId, String voterId, Optional<String> votedId) {
         Map<String, Player> playersInGame = this.gamePlayers.get(gameId);
         Player voter = playersInGame.get(voterId);
         playersInGame.put(voterId, Player.builder().from(voter).votingFor(votedId).build());
+    }
+
+    private void updatePlayer(String gameId, String playerId, Player player) {
+        this.gamePlayers.get(gameId).put(playerId, player);
+    }
+
+    private List<RoleType> defaultRoles() {
+        List<RoleType> def = new ArrayList();
+        def.add(RoleType.VILLAGER);
+        def.add(RoleType.VILLAGER);
+        def.add(RoleType.VILLAGER);
+        def.add(RoleType.SEER);
+        def.add(RoleType.WEREWOLF);
+        def.add(RoleType.WEREWOLF);
+        return def;
     }
 }
 

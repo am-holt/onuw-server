@@ -4,6 +4,7 @@ import java.lang.Void;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -59,7 +60,12 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
             }
         } else if (gameStore.getGamePhase(gameId).equals(Phase.VOTE)
                 && gameStore.getGamePlayers(gameId).stream().anyMatch(p -> p.getId().equals(selectedPlayerId))) {
-            gameStore.setVote(gameId, playerId, selectedPlayerId);
+            if (gameStore.getVote(gameId, playerId).isPresent()
+                    && gameStore.getVote(gameId, playerId).get().equals(selectedPlayerId)) {
+                gameStore.setVote(gameId, playerId, Optional.empty());
+            } else {
+                gameStore.setVote(gameId, playerId, Optional.of(selectedPlayerId));
+            }
             vote.accept(playerId);
         }
         return null;
