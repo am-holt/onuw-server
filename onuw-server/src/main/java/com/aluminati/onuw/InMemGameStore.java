@@ -33,6 +33,7 @@ public class InMemGameStore implements GameStore{
     @Override
     public void addPlayer(String gameId, String playerId, Player player) {
         gamePlayers.get(gameId).put(playerId, player);
+        originalRoles.get(gameId).put(playerId, player.getRole());
     }
 
     @Override
@@ -234,7 +235,7 @@ public class InMemGameStore implements GameStore{
     private List<RoleType> defaultRoles() {
         List<RoleType> def = new ArrayList();
         def.add(RoleType.VILLAGER);
-        def.add(RoleType.VILLAGER);
+        def.add(RoleType.ROBBER);
         def.add(RoleType.TROUBLEMAKER);
         def.add(RoleType.SEER);
         def.add(RoleType.WEREWOLF);

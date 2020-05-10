@@ -35,6 +35,11 @@ public abstract class Role {
             }
 
             @Override
+            public Role visitRobber() {
+                return new Robber();
+            }
+
+            @Override
             public Role visitHidden() {
                 return new HiddenRole();
             }

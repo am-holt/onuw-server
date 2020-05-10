@@ -82,6 +82,13 @@ public class WebSocketEndpoint {
             };
 
             public Void visitSeer(){ 
+                gameStore.updateGamePhase(gameId, Phase.ROBBER);
+                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                broadcastFullGameSate(gameId);
+                return null;
+            };
+
+            public Void visitRobber(){
                 gameStore.updateGamePhase(gameId, Phase.TROUBLEMAKER);
                 gameStore.setTimeLeftInCurrentRound(gameId, 10);
                 broadcastFullGameSate(gameId);
