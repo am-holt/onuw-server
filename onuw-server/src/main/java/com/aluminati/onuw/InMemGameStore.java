@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import com.aluminati.onuw.actions.ActionType;
 import com.aluminati.onuw.roles.Role;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -18,7 +19,7 @@ public class InMemGameStore implements GameStore{
     private Map<String, Integer> gamePhaseTimers = new ConcurrentHashMap<>();
     private Map<String, List<RoleType>> availableRoles = new ConcurrentHashMap<>();
     private Map<String, Map<String,Player>> neutralCards = new ConcurrentHashMap<>();
-    private Map<String, Map<String, Boolean>> actionsUsed = new ConcurrentHashMap<>();
+    private Map<String, Map<String, Optional<ActionType>>> actions = new ConcurrentHashMap<>();
 
     @Override
     public List<Player> getGamePlayers(String gameId) {
@@ -37,7 +38,7 @@ public class InMemGameStore implements GameStore{
         String gameId = Integer.toString(gamePlayers.size());
         gamePlayers.put(gameId.toString(), new ConcurrentHashMap());
         neutralCards.put(gameId.toString(), new ConcurrentHashMap());
-        actionsUsed.put(gameId.toString(), new ConcurrentHashMap());
+        actions.put(gameId.toString(), new ConcurrentHashMap());
         availableRoles.put(gameId.toString(), defaultRoles());
         phaseForGames.put(gameId.toString(), Phase.LOBBY);
         gamePhaseTimers.put(gameId, 0);
@@ -185,13 +186,11 @@ public class InMemGameStore implements GameStore{
     }
 
     @Override
-    public void setRoleActionAsUsed(String gameId, String playerId) {
-        this.actionsUsed.get(gameId).put(playerId, true);
-    }
-
-    @Override
-    public boolean isRoleActionUsed(String gameId, String playerId) {
-        return this.actionsUsed.get(gameId).getOrDefault(playerId, false);
+    public Optional<ActionType> getPlayerAction(String gameId, String playerId) {
+        this.actions.get(gameId).computeIfAbsent(
+                playerId,
+                id -> Role.from(this.getPlayer(gameId, id).getRole()).getAction());
+        return this.actions.get(gameId).get(playerId);
     }
 
     @Override
@@ -209,7 +208,7 @@ public class InMemGameStore implements GameStore{
         List<RoleType> def = new ArrayList();
         def.add(RoleType.VILLAGER);
         def.add(RoleType.VILLAGER);
-        def.add(RoleType.VILLAGER);
+        def.add(RoleType.TROUBLEMAKER);
         def.add(RoleType.SEER);
         def.add(RoleType.WEREWOLF);
         def.add(RoleType.WEREWOLF);

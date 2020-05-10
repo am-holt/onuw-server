@@ -2,10 +2,14 @@ package com.aluminati.onuw.roles;
 
 import com.aluminati.onuw.RoleType;
 import com.aluminati.onuw.Team;
+import com.aluminati.onuw.actions.ActionType;
+
+import java.util.Optional;
 
 public abstract class Role {
 
     public abstract Team getTeam();
+    public abstract Optional<ActionType> getAction();
 
     public static Role from(RoleType roleType) {
         return roleType.accept(new RoleType.Visitor<Role>() {
