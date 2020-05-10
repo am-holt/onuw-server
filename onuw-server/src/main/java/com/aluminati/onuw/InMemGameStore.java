@@ -13,11 +13,12 @@ public class InMemGameStore implements GameStore{
     public final static InMemGameStore INSTANCE = new InMemGameStore();
 
     //Need to be concurrent safe
-    private Map<String, Map<String,Player>> gamePlayers = new ConcurrentHashMap();
+    private Map<String, Map<String, Player>> gamePlayers = new ConcurrentHashMap();
+    private Map<String, Map<String, RoleType>> originalRoles = new ConcurrentHashMap();
     private Map<String, Phase> phaseForGames = new ConcurrentHashMap<>();
     private Map<String, Integer> gamePhaseTimers = new ConcurrentHashMap<>();
     private Map<String, List<RoleType>> availableRoles = new ConcurrentHashMap<>();
-    private Map<String, Map<String,Player>> neutralCards = new ConcurrentHashMap<>();
+    private Map<String, Map<String, Player>> neutralCards = new ConcurrentHashMap<>();
     private Map<String, Map<String, Boolean>> actionsUsed = new ConcurrentHashMap<>();
 
     @Override
@@ -39,6 +40,7 @@ public class InMemGameStore implements GameStore{
         neutralCards.put(gameId.toString(), new ConcurrentHashMap());
         actionsUsed.put(gameId.toString(), new ConcurrentHashMap());
         availableRoles.put(gameId.toString(), defaultRoles());
+        originalRoles.put(gameId.toString(), new ConcurrentHashMap());
         phaseForGames.put(gameId.toString(), Phase.LOBBY);
         gamePhaseTimers.put(gameId, 0);
         return gameId.toString();
@@ -136,16 +138,36 @@ public class InMemGameStore implements GameStore{
     }
 
     @Override
+    public void setPlayerStartRoles(String gameId, Map<String, RoleType> roles) {
+        roles.entrySet().stream()
+            .forEach(entry -> {
+                this.updatePlayer(
+                        gameId,
+                        entry.getKey(),
+                        Player.builder()
+                                .from(this.getPlayer(gameId, entry.getKey()))
+                                .role(entry.getValue())
+                                .build());
+                this.originalRoles.get(gameId).put(entry.getKey(), entry.getValue());
+            });
+        }
+
+    @Override
     public void updatePlayerRoles(String gameId, Map<String, RoleType> roles) {
         roles.entrySet().stream()
-        .forEach(entry -> this.updatePlayer(
-            gameId,
-            entry.getKey(),
-            Player.builder()
-                .from(this.getPlayer(gameId, entry.getKey()))
-                .role(entry.getValue())
-                .build()));
-        }
+                .forEach(entry -> this.updatePlayer(
+                        gameId,
+                        entry.getKey(),
+                        Player.builder()
+                                .from(this.getPlayer(gameId, entry.getKey()))
+                                .role(entry.getValue())
+                                .build()));
+    }
+
+    @Override
+    public RoleType getPlayerStartRole(String gameId, String playerId) {
+        return this.originalRoles.get(gameId).get(playerId);
+    }
 
     @Override
     public int getTimeLeftInCurrentRound(String gameId) {
