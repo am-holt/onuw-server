@@ -4,14 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.aluminati.onuw.Game;
-import com.aluminati.onuw.Phase;
-import com.aluminati.onuw.Player;
-import com.aluminati.onuw.RoleType;
-
 interface GameStore {
 
-    RoleType getStartRole(String gameId, String playerId);
+    RoleType getPlayerStartRole(String gameId, String playerId);
 
     int getTimeLeftInCurrentRound(String gameId);
 

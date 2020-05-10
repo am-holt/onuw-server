@@ -165,7 +165,7 @@ public class InMemGameStore implements GameStore{
     }
 
     @Override
-    public RoleType getStartRole(String gameId, String playerId) {
+    public RoleType getPlayerStartRole(String gameId, String playerId) {
         return this.originalRoles.get(gameId).get(playerId);
     }
 
