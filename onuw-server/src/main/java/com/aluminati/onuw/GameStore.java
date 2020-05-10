@@ -4,6 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.aluminati.onuw.Game;
+import com.aluminati.onuw.Phase;
+import com.aluminati.onuw.Player;
+import com.aluminati.onuw.RoleType;
+import com.aluminati.onuw.actions.ActionType;
+
 interface GameStore {
 
     RoleType getPlayerStartRole(String gameId, String playerId);
@@ -40,9 +46,7 @@ interface GameStore {
     
     Optional<Player> getNeutralPlayer(String gameId, String playerId);
 
-    void setRoleActionAsUsed(String gameId, String playerId);
-    
-    boolean isRoleActionUsed(String gameId, String playerId);
+    Optional<ActionType> getPlayerAction(String gameId, String playerId);
 
     void setVote(String gameId, String voterId, Optional<String> votedId);
 }

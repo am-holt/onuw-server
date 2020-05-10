@@ -1,10 +1,11 @@
 package com.aluminati.onuw;
 
+import com.aluminati.onuw.actions.ActionType;
+import com.aluminati.onuw.actions.SelectPlayersAction;
+import com.google.common.collect.ImmutableMap;
+
 import java.lang.Void;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -37,26 +38,49 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
 
     @Override
     public Void visitClickPlayer(String selectedPlayerId) {
+        Optional<ActionType> playerAction = gameStore.getPlayerAction(gameId, playerId);
         if (gameStore.getGamePhase(gameId).equals(Phase.WEREWOLF)
                 && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.WEREWOLF)
                 && gameStore.getGamePlayers(gameId)
                     .stream()
                     .filter(x -> !x.getId().equals(playerId))
                     .noneMatch(player -> player.getRole().equals(RoleType.WEREWOLF))
-                && !gameStore.isRoleActionUsed(gameId, playerId)) {
+                && playerAction.isPresent()
+                && !playerAction.get().isActionUsed()) {
 
             gameStore.getNeutralPlayer(gameId, selectedPlayerId)
                 .ifPresent(neutral -> {
-                    gameStore.setRoleActionAsUsed(gameId, playerId);
-                    peek.apply(playerId, neutral);});    
-        } else if (gameStore.getGamePhase(gameId).equals(Phase.SEER)
-                && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.SEER)
-                && !gameStore.isRoleActionUsed(gameId, playerId)) {
+                    ((SelectPlayersAction)playerAction.get())
+                            .choosePlayer(
+                                    neutral.getId(),
+                                    1,
+                                    ids -> ids.forEach(id -> peek.apply(playerId, neutral)));
+                    });
+        } else if(gameStore.getGamePhase(gameId).equals(Phase.TROUBLEMAKER)
+                && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.TROUBLEMAKER)
+                && playerAction.isPresent()
+                && !playerAction.get().isActionUsed()) {
 
             Player peekee = gameStore.getPlayer(gameId, selectedPlayerId);
             if (peekee != null ) {
-                gameStore.setRoleActionAsUsed(gameId, playerId);
-                peek.apply(playerId, peekee);
+                ((SelectPlayersAction)playerAction.get())
+                        .choosePlayer(
+                                selectedPlayerId,
+                                2,
+                                ids -> swapRoles(ids));
+            }
+        } else if (gameStore.getGamePhase(gameId).equals(Phase.SEER)
+                && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.SEER)
+                && playerAction.isPresent()
+                && !playerAction.get().isActionUsed()) {
+
+            Player peekee = gameStore.getPlayer(gameId, selectedPlayerId);
+            if (peekee != null ) {
+                ((SelectPlayersAction)playerAction.get())
+                        .choosePlayer(
+                                peekee.getId(),
+                                1,
+                                ids -> ids.forEach(id -> peek.apply(playerId, peekee)));
             }
         } else if (gameStore.getGamePhase(gameId).equals(Phase.VOTE)
                 && gameStore.getGamePlayers(gameId).stream().anyMatch(p -> p.getId().equals(selectedPlayerId))) {
@@ -69,6 +93,18 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
             vote.accept(playerId);
         }
         return null;
+    }
+
+    private void swapRoles(Set<String> ids) {
+        if (ids.size() != 2) {
+            throw new RuntimeException("A swap must occur between two cards");
+        }
+        Iterator<String> idIterator = ids.iterator();
+        Player player1 = gameStore.getPlayer(gameId, idIterator.next());
+        Player player2 = gameStore.getPlayer(gameId, idIterator.next());
+        gameStore.updatePlayerRoles(
+                gameId,
+                ImmutableMap.of(player1.getId(), player2.getRole(), player2.getId(), player1.getRole()));
     }
 
     @Override
