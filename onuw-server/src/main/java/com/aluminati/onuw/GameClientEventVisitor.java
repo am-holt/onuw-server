@@ -114,7 +114,7 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
         List<Player> players = gameStore.getGamePlayers(gameId);
         Map<String, RoleType> playerRoles = IntStream.range(0, players.size()).boxed()
                 .collect(Collectors.toMap(index -> players.get(index).getId(), roles::get));
-        gameStore.updatePlayerRoles(gameId, playerRoles);
+        gameStore.setPlayerStartRoles(gameId, playerRoles);
         IntStream.range(players.size(), roles.size()).boxed()
             .forEach(index -> gameStore.addNeutralPlayer(gameId, roles.get(index)));
         gameStore.updateGamePhase(gameId, Phase.DAY);
