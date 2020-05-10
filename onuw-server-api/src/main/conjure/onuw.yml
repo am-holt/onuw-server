@@ -16,6 +16,7 @@ types:
           - WEREWOLF
           - SEER
           - VILLAGER
+          - TROUBLEMAKER
           - HIDDEN
 
       Team:
@@ -56,6 +57,7 @@ types:
           - DAY
           - WEREWOLF
           - SEER
+          - TROUBLEMAKER
           - VOTE
           - END
 
