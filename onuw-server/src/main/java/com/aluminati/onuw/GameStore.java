@@ -10,6 +10,9 @@ import com.aluminati.onuw.Player;
 import com.aluminati.onuw.RoleType;
 
 interface GameStore {
+
+    RoleType getStartRole(String gameId, String playerId);
+
     int getTimeLeftInCurrentRound(String gameId);
 
     Optional<String> getVote(String gameId, String voterId);
@@ -33,6 +36,8 @@ interface GameStore {
     void updateGamePhase(String gameId, Phase phase);
 
     List<RoleType> getAvailableRoles(String gameId);
+
+    void setPlayerStartRoles(String gameId, Map<String, RoleType> roles);
 
     void updatePlayerRoles(String gameId, Map<String, RoleType> roles);
 
