@@ -56,7 +56,11 @@ public class InMemGameStore implements GameStore{
         Phase currentPhase = phaseForGames.get(gameId);
         Optional<Team> winningTeam = getWinningTeam(gameId);
         return Game.builder()
-            .currentPlayer(players.get(playerId))
+            .currentPlayer(
+                    currentPhase.equals(Phase.END) ? players.get(playerId)
+                            : Player.builder().from(players.get(playerId))
+                                    .role(getPlayerStartRole(gameId, playerId))
+                                    .build())
             .otherPlayers(players.values().stream()
                 .filter(player -> !player.getId().equals(playerId))
                 .map(player -> 
