@@ -26,6 +26,11 @@ public abstract class Role {
             }
 
             @Override
+            public Role visitTroublemaker() {
+                return new Troublemaker();
+            }
+
+            @Override
             public Role visitHidden() {
                 return new HiddenRole();
             }
