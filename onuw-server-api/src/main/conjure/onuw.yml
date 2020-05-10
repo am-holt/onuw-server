@@ -17,6 +17,7 @@ types:
           - SEER
           - VILLAGER
           - TROUBLEMAKER
+          - ROBBER
           - HIDDEN
 
       Team:
@@ -58,6 +59,7 @@ types:
           - WEREWOLF
           - SEER
           - TROUBLEMAKER
+          - ROBBER
           - VOTE
           - END
 

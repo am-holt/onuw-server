@@ -61,13 +61,26 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
                 && playerAction.isPresent()
                 && !playerAction.get().isActionUsed()) {
 
-            Player peekee = gameStore.getPlayer(gameId, selectedPlayerId);
-            if (peekee != null ) {
+            Player selected = gameStore.getPlayer(gameId, selectedPlayerId);
+            if (selected != null ) {
                 ((SelectPlayersAction)playerAction.get())
                         .choosePlayer(
                                 selectedPlayerId,
                                 2,
                                 ids -> swapRoles(ids));
+            }
+        } else if(gameStore.getGamePhase(gameId).equals(Phase.ROBBER)
+                && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.ROBBER)
+                && playerAction.isPresent()
+                && !playerAction.get().isActionUsed()) {
+
+            Player selected = gameStore.getPlayer(gameId, selectedPlayerId);
+            if (selected != null) {
+                ((SelectPlayersAction)playerAction.get())
+                        .choosePlayer(
+                                selectedPlayerId,
+                                1,
+                                ids -> {ids.add(playerId); swapRoles(ids);});
             }
         } else if (gameStore.getGamePhase(gameId).equals(Phase.SEER)
                 && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.SEER)
