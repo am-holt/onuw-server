@@ -97,14 +97,14 @@ public class WebSocketEndpoint {
 
             public Void visitTroublemaker(){
                 gameStore.updateGamePhase(gameId, Phase.VOTE);
-                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                gameStore.setTimeLeftInCurrentRound(gameId, 180);
                 broadcastFullGameSate(gameId);
                 return null;
             };
 
             public Void visitVote(){
                 gameStore.updateGamePhase(gameId, Phase.END);
-                gameStore.setTimeLeftInCurrentRound(gameId, 10);
+                gameStore.setTimeLeftInCurrentRound(gameId, 30);
                 broadcastFullGameSate(gameId);
                 return null;
             };
