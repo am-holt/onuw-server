@@ -122,9 +122,9 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
 
     @Override
     public Void visitStartGame(com.aluminati.onuw.Void value) {
-        List<RoleType> roles = gameStore.getAvailableRoles(gameId);
-        Collections.shuffle(roles);
         List<Player> players = gameStore.getGamePlayers(gameId);
+        List<RoleType> roles = getDefaultGameRoles(players.size());
+        Collections.shuffle(roles);
         Map<String, RoleType> playerRoles = IntStream.range(0, players.size()).boxed()
                 .collect(Collectors.toMap(index -> players.get(index).getId(), roles::get));
         gameStore.setPlayerStartRoles(gameId, playerRoles);
@@ -134,6 +134,28 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
         gameStore.setTimeLeftInCurrentRound(gameId, 10);
         broadcastGameState.run();
         return null;
+    }
+
+    private List<RoleType> getDefaultGameRoles(int size) {
+        List<RoleType> def = new ArrayList();
+        def.add(RoleType.WEREWOLF);
+        def.add(RoleType.VILLAGER);
+        def.add(RoleType.VILLAGER);
+        def.add(RoleType.SEER);
+        def.add(RoleType.TROUBLEMAKER);
+        if (size > 3) {
+            def.add(RoleType.ROBBER);
+        }
+        if (size > 4) {
+            def.add(RoleType.WEREWOLF);
+        }
+        if (size > 5) {
+            def.add(RoleType.VILLAGER);
+        }
+        if (size > 6) {
+            def.add(RoleType.WEREWOLF);
+        }
+        return def;
     }
 
     @Override
