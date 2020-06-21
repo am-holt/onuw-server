@@ -136,14 +136,15 @@ public class WebSocketEndpoint {
     }
 
     @OnMessage
-    public void handleTextMessage(final String message) throws JsonMappingException, JsonProcessingException {
-        ClientEvent clientEvent = mapper.readValue(message, ClientEvent.class);
+    public void handleTextMessage(final String request) throws JsonMappingException, JsonProcessingException {
+        ClientEvent clientEvent = mapper.readValue(request, ClientEvent.class);
         Map<String, Session> playerSessions = this.playersInGames.get(gameId);
         clientEvent.accept(new GameClientEventVisitor(
             gameId,
             session.getId(),
             gameStore,
             () -> broadcastFullGameSate(gameId),
+            (playerId, message) -> {sendServerEvent(ServerEvent.sendMessage(message), playerSessions.get(playerId)); return null;},
             (peekerId, player) -> {sendServerEvent(ServerEvent.updatePlayer(player), playerSessions.get(peekerId)); return null;},
             voterId -> sendFullGameState(gameId, playerSessions.get(voterId))));
         System.out.println("GameStart");

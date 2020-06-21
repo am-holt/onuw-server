@@ -17,16 +17,18 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
     private String gameId;
     private String playerId;
     private Runnable broadcastGameState;
+    private BiFunction<String, Message, Void> sendMessage;
     private BiFunction<String, Player, Void> peek;
     private Consumer<String> vote;
 
-    public GameClientEventVisitor(String gameId, String playerId, GameStore gameStore, Runnable broadcastGameState, BiFunction<String, Player, Void> peek, Consumer<String> vote) {
+    public GameClientEventVisitor(String gameId, String playerId, GameStore gameStore, Runnable broadcastGameState, BiFunction<String, Message, Void> sendMessage, BiFunction<String, Player, Void> peek, Consumer<String> vote) {
         this.gameId = gameId;
         this.playerId = playerId;
         this.gameStore = gameStore;
         this.broadcastGameState = broadcastGameState;
         this.peek = peek;
         this.vote = vote;
+        this.sendMessage = sendMessage;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
                         .choosePlayer(
                                 selectedPlayerId,
                                 2,
-                                ids -> swapRoles(ids));
+                                ids -> swapRoles(playerId, ids));
             }
         } else if(gameStore.getGamePhase(gameId).equals(Phase.ROBBER)
                 && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.ROBBER)
@@ -80,7 +82,7 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
                         .choosePlayer(
                                 selectedPlayerId,
                                 1,
-                                ids -> {ids.add(playerId); swapRoles(ids);});
+                                ids -> {ids.add(playerId); swapRoles(playerId, ids);});
             }
         } else if (gameStore.getGamePhase(gameId).equals(Phase.SEER)
                 && gameStore.getPlayer(gameId, playerId).getRole().equals(RoleType.SEER)
@@ -108,7 +110,7 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
         return null;
     }
 
-    private void swapRoles(Set<String> ids) {
+    private void swapRoles(String playerToNotify, Set<String> ids) {
         if (ids.size() != 2) {
             throw new RuntimeException("A swap must occur between two cards");
         }
@@ -118,6 +120,7 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
         gameStore.updatePlayerRoles(
                 gameId,
                 ImmutableMap.of(player1.getId(), player2.getRole(), player2.getId(), player1.getRole()));
+        sendInfo(playerToNotify, String.format("Swapped players: %s & %s", player1.getName(), player2.getName()));
     }
 
     @Override
@@ -168,5 +171,9 @@ public class GameClientEventVisitor implements ClientEvent.Visitor<Void> {
     public Void visitUnknown(String unknownType) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    private void sendInfo(String playerId, String message) {
+        this.sendMessage.apply(playerId, Message.of(message, MessageLevel.INFO));
     }
 }
