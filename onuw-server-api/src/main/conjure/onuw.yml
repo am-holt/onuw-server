@@ -44,6 +44,7 @@ types:
           changePhase: Phase
           updateTime: integer
           fullUpdate: Game
+          sendMessage: Message
 
       ClientEvent:
         union:
@@ -51,6 +52,17 @@ types:
           clickPlayer: string
           startGame: Void
           changeVote: string
+
+      Message:
+        fields:
+          message: string
+          level : MessageLevel
+
+      MessageLevel:
+        values:
+          - ERROR
+          - WARNING
+          - INFO
 
       Phase:
         values:
